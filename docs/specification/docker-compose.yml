@@ -1,0 +1,89 @@
+services:
+
+  # ── PostgreSQL 16 ────────────────────────────────────────────────────────────
+  # Primary data store. The pgvector extension is loaded via the custom
+  # image — required for AI embedding storage (ADR-006).
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: policyhub_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: policyhub
+      POSTGRES_PASSWORD: policyhub
+      POSTGRES_DB: policyhub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U policyhub -d policyhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Valkey 7 ─────────────────────────────────────────────────────────────────
+  # Redis-compatible queue and cache store. Valkey is BSD-3-Clause licensed —
+  # used instead of Redis to avoid AGPL licensing concerns (ADR-004).
+  valkey:
+    image: valkey/valkey:7-alpine
+    container_name: policyhub_valkey
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - valkey_data:/data
+    command: valkey-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  # ── Typesense 28 ─────────────────────────────────────────────────────────────
+  # Full-text search engine. Role filtering is applied at query time via
+  # the audience_group_ids field — never post-retrieval (ADR-005).
+  typesense:
+    image: typesense/typesense:28.0
+    container_name: policyhub_typesense
+    restart: unless-stopped
+    environment:
+      TYPESENSE_DATA_DIR: /data
+      TYPESENSE_API_KEY: local-dev-typesense-key
+      TYPESENSE_ENABLE_CORS: "true"
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8108/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+volumes:
+  postgres_data:
+    name: policyhub_postgres_data
+  valkey_data:
+    name: policyhub_valkey_data
+  typesense_data:
+    name: policyhub_typesense_data
+
+# ── Usage ─────────────────────────────────────────────────────────────────────
+#
+# Start all services:       docker compose up -d
+# Check health:             docker compose ps
+# Inspect Postgres:         docker compose exec postgres psql -U policyhub
+# Flush Valkey:             docker compose exec valkey valkey-cli FLUSHALL
+# Check Typesense:          curl http://localhost:8108/health
+#
+# Wipe a service (example — Postgres):
+#   docker compose down postgres
+#   docker volume rm policyhub_postgres_data
+#   docker compose up -d postgres && node ace migration:run && node ace db:seed
+#
+# Stop (data preserved):    docker compose down
+# Stop + destroy all data:  docker compose down -v

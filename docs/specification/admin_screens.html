@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>PolicyHub — Admin Screens</title>
+<style>
+:root {
+  --bg:#ffffff;--bg2:#f6f5f2;--bg3:#efede8;
+  --info-bg:#e6f1fb;--success-bg:#e1f5ee;--warn-bg:#faeeda;--danger-bg:#fcebeb;
+  --t1:#1a1917;--t2:#6b6a67;--t3:#9e9d9a;
+  --t-info:#185FA5;--t-success:#0F6E56;--t-warn:#BA7517;--t-danger:#A32D2D;
+  --b1:rgba(26,25,23,0.35);--b2:rgba(26,25,23,0.22);--b3:rgba(26,25,23,0.12);
+  --info-b:#B5D4F4;--success-b:#9FE1CB;--warn-b:#FAC775;--danger-b:#F09595;
+  --r:8px;--rl:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:13px;background:#e8e6e1;padding:16px}
+.switcher{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.sw-btn{padding:5px 14px;border-radius:99px;border:0.5px solid #ccc;background:#fff;cursor:pointer;font-size:12px;color:var(--t2)}
+.sw-btn:hover,.sw-btn.active{background:var(--t1);color:#fff;border-color:var(--t1)}
+.app{display:flex;height:700px;border:0.5px solid var(--b3);border-radius:var(--rl);overflow:hidden;background:var(--bg);box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+.sb{width:188px;border-right:0.5px solid var(--b3);flex-shrink:0;display:flex;flex-direction:column;background:var(--bg2)}
+.sb-logo{padding:13px 16px;font-size:14px;font-weight:500;border-bottom:0.5px solid var(--b3);color:var(--t1)}
+.ni{padding:7px 10px;border-radius:var(--r);cursor:default;color:var(--t2);font-size:13px;display:flex;align-items:center;gap:8px;margin:1px 8px}
+.ni.a{background:var(--bg);color:var(--t1);font-weight:500}
+.ni.dim{opacity:0.45}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.35;flex-shrink:0}
+.nav-lbl{font-size:10px;color:var(--t3);padding:10px 8px 4px;letter-spacing:0.6px;text-transform:uppercase}
+.sb-user{padding:12px 14px;border-top:0.5px solid var(--b3);font-size:12px;color:var(--t2);margin-top:auto}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);position:relative}
+.screen{display:none;flex-direction:column;flex:1;min-height:0}
+.screen.active{display:flex}
+.topbar{padding:10px 20px;border-bottom:0.5px solid var(--b3);display:flex;align-items:center;gap:10px;min-height:46px;background:var(--bg2);flex-shrink:0}
+.btn{padding:5px 14px;border:0.5px solid var(--b2);border-radius:var(--r);cursor:default;font-size:13px;background:transparent;color:var(--t1)}
+.btn-sm{padding:3px 10px;font-size:12px}
+.btn-p{background:var(--t1);color:var(--bg);border-color:transparent}
+.btn-ok{background:var(--success-bg);color:var(--t-success);border-color:var(--success-b)}
+.btn-bad{background:var(--danger-bg);color:var(--t-danger);border-color:var(--danger-b)}
+.btn-warn{background:var(--warn-bg);color:var(--t-warn);border-color:var(--warn-b)}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;white-space:nowrap}
+.b-admin{background:#ede8fb;color:#5B3FA6}
+.b-author{background:var(--info-bg);color:var(--t-info)}
+.b-reviewer{background:var(--success-bg);color:var(--t-success)}
+.b-approver{background:var(--warn-bg);color:var(--t-warn)}
+.b-active{background:var(--success-bg);color:var(--t-success)}
+.b-inactive{background:var(--bg3);color:var(--t3)}
+.b-pub{background:var(--success-bg);color:var(--t-success)}
+.b-arch{background:var(--bg3);color:var(--t3)}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--bg2);color:var(--t2);border:0.5px solid var(--b3)}
+.sl{font-size:11px;font-weight:500;color:var(--t2);letter-spacing:0.4px;text-transform:uppercase}
+th{text-align:left;font-size:11px;font-weight:500;color:var(--t2);padding:8px 12px;border-bottom:0.5px solid var(--b3);text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap}
+td{padding:8px 12px;border-bottom:0.5px solid var(--b3);color:var(--t1);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg2)}
+.filter-bar{display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:0.5px solid var(--b3);flex-shrink:0;background:var(--bg);flex-wrap:wrap}
+input,select{padding:5px 10px;border:0.5px solid var(--b2);border-radius:var(--r);font-size:12px;background:var(--bg);color:var(--t1);outline:none;font-family:var(--font)}
+input[type=text]{width:200px}
+.slide-over{position:absolute;top:0;right:0;width:360px;height:100%;background:var(--bg);border-left:0.5px solid var(--b2);display:flex;flex-direction:column;z-index:20;box-shadow:-4px 0 24px rgba(0,0,0,0.10)}
+.so-head{padding:14px 18px;border-bottom:0.5px solid var(--b3);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-shrink:0}
+.so-close{font-size:18px;color:var(--t2);cursor:default;line-height:1;padding:0 4px}
+.so-body{flex:1;overflow:auto;padding:18px}
+.form-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-label{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.4px}
+.form-input{padding:7px 10px;border:0.5px solid var(--b2);border-radius:var(--r);font-size:13px;background:var(--bg);color:var(--t1)}
+.form-note{font-size:11px;color:var(--t3);line-height:1.4}
+.so-foot{padding:14px 18px;border-top:0.5px solid var(--b3);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.role-check{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--b3)}
+.role-check:last-child{border-bottom:none}
+.check-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--b1);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.check-on{background:var(--t1);border-color:var(--t1);color:#fff}
+.inline-confirm{background:var(--danger-bg);border:0.5px solid var(--danger-b);border-radius:var(--r);padding:6px 10px;font-size:11px;color:var(--t-danger);display:flex;align-items:center;gap:8px;margin-top:4px}
+.audit-row td{font-size:12px}
+.code{font-family:monospace;font-size:11px;background:var(--bg2);padding:2px 6px;border-radius:4px;color:var(--t1)}
+.gap-rank{width:28px;height:28px;border-radius:50%;background:var(--bg2);border:0.5px solid var(--b3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--t2);flex-shrink:0}
+.gap-bar-wrap{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;width:80px;flex-shrink:0}
+.gap-bar{height:100%;border-radius:99px;background:var(--t-danger);opacity:0.7}
+.pagination{display:flex;align-items:center;gap:6px;padding:10px 20px;border-top:0.5px solid var(--b3);flex-shrink:0;background:var(--bg2)}
+.pg-btn{padding:3px 10px;border:0.5px solid var(--b2);border-radius:var(--r);font-size:12px;background:var(--bg);color:var(--t2)}
+.pg-btn.active{background:var(--t1);color:#fff;border-color:var(--t1)}
+.section-divider{padding:8px 20px;background:var(--bg2);border-bottom:0.5px solid var(--b3);font-size:11px;font-weight:500;color:var(--t3);letter-spacing:0.5px;text-transform:uppercase;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button class="sw-btn active" onclick="nav('users')">Users</button>
+  <button class="sw-btn" onclick="nav('idp')">IdP Mappings</button>
+  <button class="sw-btn" onclick="nav('categories')">Categories</button>
+  <button class="sw-btn" onclick="nav('audiences')">Audience Groups</button>
+  <button class="sw-btn" onclick="nav('audit')">Audit Log</button>
+  <button class="sw-btn" onclick="nav('gap')">Bot Gap Report</button>
+</div>
+
+<div class="app">
+
+<!-- SIDEBAR (shared) -->
+<div class="sb">
+  <div class="sb-logo">PolicyHub</div>
+  <div style="padding:8px 0">
+    <div class="ni dim"><div class="dot"></div>Dashboard</div>
+    <div class="ni dim"><div class="dot"></div>My Policies</div>
+    <div class="ni dim"><div class="dot"></div>Review Queue</div>
+    <div class="nav-lbl">Reader</div>
+    <div class="ni dim"><div class="dot"></div>Policy Library</div>
+    <div class="nav-lbl">Admin</div>
+    <div class="ni a" id="sb-users"><div class="dot"></div>Users</div>
+    <div class="ni" id="sb-idp" style="padding-left:24px;font-size:12px;color:var(--t3)">IdP Mappings</div>
+    <div class="ni" id="sb-categories"><div class="dot"></div>Categories</div>
+    <div class="ni" id="sb-audiences"><div class="dot"></div>Audience Groups</div>
+    <div class="ni" id="sb-audit"><div class="dot"></div>Audit Log</div>
+    <div class="ni" id="sb-gap"><div class="dot"></div>Bot Gap Report</div>
+  </div>
+  <div class="sb-user">
+    <div style="font-weight:500;color:var(--t1);font-size:12px">Sarah Jones</div>
+    <div style="font-size:11px;margin-top:1px">Policy Admin</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCREEN 1: USERS
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-users" class="screen">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)">Users</div>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:var(--t3)">47 users</span>
+    <button class="btn btn-sm">Export CSV</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" placeholder="Search by name or email…" style="width:220px">
+    <select style="font-size:12px">
+      <option>All roles</option>
+      <option>policy:admin</option>
+      <option>policy:author</option>
+      <option>policy:reviewer</option>
+      <option>policy:approver:l1</option>
+      <option>policy:approver:l2</option>
+    </select>
+    <select style="font-size:12px">
+      <option>All statuses</option>
+      <option>Active</option>
+      <option>Inactive</option>
+    </select>
+    <select style="font-size:12px">
+      <option>All IdP providers</option>
+      <option>Entra</option>
+      <option>Local</option>
+    </select>
+    <div style="flex:1"></div>
+    <span style="font-size:11px;color:var(--t3)">Roles sync from IdP at login</span>
+  </div>
+  <div style="flex:1;overflow:auto">
+    <table style="width:100%">
+      <thead><tr>
+        <th>Name</th><th>Email</th><th>Roles</th>
+        <th>IdP</th><th>Last login</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:500">Sarah Jones</td>
+          <td style="color:var(--t2)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8bbe6a2a7a6adbb88aba7e6aba7a5">[email&#160;protected]</a></td>
+          <td><span class="badge b-admin">policy:admin</span></td>
+          <td><span class="tag">Entra</span></td>
+          <td style="color:var(--t2)">Today 09:14</td>
+          <td><span class="badge b-active">Active</span></td>
+          <td style="white-space:nowrap"><button class="btn btn-sm">Edit roles</button></td>
+        </tr>
+        <tr>
+          <td style="font-weight:500">James Wilson</td>
+          <td style="color:var(--t2)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3a50144d53564955547a595514595557">[email&#160;protected]</a></td>
+          <td style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:8px 12px">
+            <span class="badge b-author">policy:author</span>
+            <span class="badge b-approver">approver:l1</span>
+          </td>
+          <td><span class="tag">Entra</span></td>
+          <td style="color:var(--t2)">Yesterday</td>
+          <td><span class="badge b-active">Active</span></td>
+          <td style="white-space:nowrap"><button class="btn btn-sm">Edit roles</button></td>
+        </tr>
+        <tr>
+          <td style="font-weight:500">Mark Chen</td>
+          <td style="color:var(--t2)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="630e4d000b060d23000c4d000c0e">[email&#160;protected]</a></td>
+          <td><span class="badge b-author">policy:author</span></td>
+          <td><span class="tag">Entra</span></td>
+          <td style="color:var(--t2)">3 days ago</td>
+          <td><span class="badge b-active">Active</span></td>
+          <td style="white-space:nowrap"><button class="btn btn-sm">Edit roles</button></td>
+        </tr>
+        <tr>
+          <td style="font-weight:500">Priya Kapoor</td>
+          <td style="color:var(--t2)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="61114f0a00110e0e1321020e4f020e0c">[email&#160;protected]</a></td>
+          <td><span class="badge b-reviewer">policy:reviewer</span></td>
+          <td><span class="tag">Entra</span></td>
+          <td style="color:var(--t2)">1 week ago</td>
+          <td><span class="badge b-active">Active</span></td>
+          <td style="white-space:nowrap"><button class="btn btn-sm">Edit roles</button></td>
+        </tr>
+        <tr style="opacity:0.6">
+          <td style="font-weight:500">Tom Bradley</td>
+          <td style="color:var(--t2)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0d79236f7f6c696168744d6e62236e6260">[email&#160;protected]</a></td>
+          <td style="color:var(--t3)">—</td>
+          <td><span class="tag">Entra</span></td>
+          <td style="color:var(--t3)">6 months ago</td>
+          <td><span class="badge b-inactive">Inactive</span></td>
+          <td style="white-space:nowrap"><button class="btn btn-sm btn-ok">Reactivate</button></td>
+        </tr>
+        <tr>
+          <td style="font-weight:500">Dev Seed</td>
+          <td style="color:var(--t2)"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="80e1f5f4e8eff2c0e5f8e1edf0ece5aee3efed">[email&#160;protected]</a></td>
+          <td><span class="badge b-author">policy:author</span></td>
+          <td><span class="tag" style="background:var(--warn-bg);color:var(--t-warn);border-color:var(--warn-b)">Local</span></td>
+          <td style="color:var(--t2)">Never</td>
+          <td><span class="badge b-active">Active</span></td>
+          <td style="white-space:nowrap"><button class="btn btn-sm">Edit roles</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span style="font-size:12px;color:var(--t2)">Showing 1–20 of 47</span>
+    <div style="flex:1"></div>
+    <button class="pg-btn">← Prev</button>
+    <button class="pg-btn active">1</button>
+    <button class="pg-btn">2</button>
+    <button class="pg-btn">3</button>
+    <button class="pg-btn">Next →</button>
+  </div>
+
+  <!-- Slide-over: Edit roles for James Wilson -->
+  <div class="slide-over">
+    <div class="so-head">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--t1)">Edit roles — James Wilson</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="016b2f76686d726e6f41626e2f626e6c">[email&#160;protected]</a> · Entra</div>
+      </div>
+      <span class="so-close">×</span>
+    </div>
+    <div class="so-body">
+      <div style="background:var(--warn-bg);border:0.5px solid var(--warn-b);border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--t-warn);margin-bottom:16px;line-height:1.5">
+        Manual overrides take effect immediately and persist until cleared. Roles will be re-synced from IdP on next login.
+      </div>
+      <div class="sl" style="margin-bottom:8px">Application roles</div>
+      <div style="border:0.5px solid var(--b3);border-radius:var(--r);overflow:hidden;margin-bottom:16px">
+        <div class="role-check">
+          <div class="check-box check-on">✓</div>
+          <div>
+            <div style="font-size:13px;font-weight:500">policy:author</div>
+            <div style="font-size:11px;color:var(--t3)">Can create and edit policies</div>
+          </div>
+          <span style="margin-left:auto;font-size:10px;color:var(--t-info)">from IdP</span>
+        </div>
+        <div class="role-check">
+          <div class="check-box check-on">✓</div>
+          <div>
+            <div style="font-size:13px;font-weight:500">policy:approver:l1</div>
+            <div style="font-size:11px;color:var(--t3)">Can give L1 approval</div>
+          </div>
+          <span style="margin-left:auto;font-size:10px;color:var(--t-info)">from IdP</span>
+        </div>
+        <div class="role-check">
+          <div class="check-box"></div>
+          <div>
+            <div style="font-size:13px;color:var(--t2)">policy:reviewer</div>
+            <div style="font-size:11px;color:var(--t3)">Can review and comment on policies</div>
+          </div>
+        </div>
+        <div class="role-check">
+          <div class="check-box"></div>
+          <div>
+            <div style="font-size:13px;color:var(--t2)">policy:approver:l2</div>
+            <div style="font-size:11px;color:var(--t3)">Can give final approval</div>
+          </div>
+        </div>
+        <div class="role-check">
+          <div class="check-box"></div>
+          <div>
+            <div style="font-size:13px;color:var(--t2)">policy:admin</div>
+            <div style="font-size:11px;color:var(--t3)">Full admin access</div>
+          </div>
+        </div>
+      </div>
+      <div class="sl" style="margin-bottom:8px">Account</div>
+      <div style="border:0.5px solid var(--danger-b);border-radius:var(--r);padding:10px 14px;background:var(--danger-bg)">
+        <div style="font-size:13px;font-weight:500;color:var(--t-danger);margin-bottom:4px">Deactivate account</div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:10px">Ends all active sessions immediately. User cannot log in until reactivated.</div>
+        <button class="btn btn-sm btn-bad">Deactivate James Wilson</button>
+      </div>
+    </div>
+    <div class="so-foot">
+      <button class="btn btn-sm">Cancel</button>
+      <button class="btn btn-sm btn-p">Save changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCREEN 2: IDP MAPPINGS
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-idp" class="screen">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)">IdP Group → Role Mappings</div>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm btn-p">+ Add mapping</button>
+  </div>
+  <div style="padding:10px 20px;border-bottom:0.5px solid var(--b3);flex-shrink:0;background:var(--info-bg);border-left:3px solid var(--t-info)">
+    <span style="font-size:12px;color:var(--t-info)"><strong>How this works:</strong> When a user logs in via Entra, PolicyHub reads their group IDs from the ID token and assigns any mapped roles. Changes here take effect on the user's next login.</span>
+  </div>
+  <div style="flex:1;overflow:auto">
+    <table style="width:100%">
+      <thead><tr>
+        <th>IdP Group ID</th><th>Group name (reference only)</th>
+        <th>Mapped role</th><th>Users affected</th><th>Added</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="code">a1b2c3d4-0001-0001-0001-aabbccdd0001</span></td>
+          <td style="color:var(--t2)">PH-Policy-Admins</td>
+          <td><span class="badge b-admin">policy:admin</span></td>
+          <td style="color:var(--t2)">3 users</td>
+          <td style="color:var(--t3)">14 Jan 2025</td>
+          <td><button class="btn btn-sm btn-bad">Remove</button></td>
+        </tr>
+        <tr>
+          <td><span class="code">a1b2c3d4-0002-0002-0002-aabbccdd0002</span></td>
+          <td style="color:var(--t2)">PH-Policy-Authors</td>
+          <td><span class="badge b-author">policy:author</span></td>
+          <td style="color:var(--t2)">18 users</td>
+          <td style="color:var(--t3)">14 Jan 2025</td>
+          <td><button class="btn btn-sm btn-bad">Remove</button></td>
+        </tr>
+        <tr>
+          <td><span class="code">a1b2c3d4-0003-0003-0003-aabbccdd0003</span></td>
+          <td style="color:var(--t2)">PH-Policy-Reviewers</td>
+          <td><span class="badge b-reviewer">policy:reviewer</span></td>
+          <td style="color:var(--t2)">12 users</td>
+          <td style="color:var(--t3)">14 Jan 2025</td>
+          <td><button class="btn btn-sm btn-bad">Remove</button></td>
+        </tr>
+        <tr>
+          <td><span class="code">a1b2c3d4-0004-0004-0004-aabbccdd0004</span></td>
+          <td style="color:var(--t2)">PH-L1-Approvers</td>
+          <td><span class="badge b-approver">policy:approver:l1</span></td>
+          <td style="color:var(--t2)">7 users</td>
+          <td style="color:var(--t3)">14 Jan 2025</td>
+          <td><button class="btn btn-sm btn-bad">Remove</button></td>
+        </tr>
+        <tr>
+          <td><span class="code">a1b2c3d4-0005-0005-0005-aabbccdd0005</span></td>
+          <td style="color:var(--t2)">PH-Policy-Committee</td>
+          <td><span class="badge b-approver" style="background:#ede8fb;color:#5B3FA6">policy:approver:l2</span></td>
+          <td style="color:var(--t2)">5 users</td>
+          <td style="color:var(--t3)">14 Jan 2025</td>
+          <td><button class="btn btn-sm btn-bad">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="padding:12px 20px;border-top:0.5px solid var(--b3);background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:12px;color:var(--t3)">Group Object IDs are found in Azure Portal → Entra ID → Groups → [group] → Overview. See the Entra setup guide for details.</span>
+    <button class="btn btn-sm">Download mapping CSV</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCREEN 3: CATEGORIES
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-categories" class="screen">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)">Categories</div>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:var(--t3)">5 categories</span>
+    <button class="btn btn-sm btn-p">+ New category</button>
+  </div>
+  <div style="flex:1;overflow:auto">
+    <table style="width:100%">
+      <thead><tr>
+        <th>Category</th><th>Policies</th>
+        <th>Default L1 approver</th><th>Default L2 approver</th>
+        <th>Status</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>
+            <div style="font-weight:500">Finance</div>
+            <div style="font-size:11px;color:var(--t3)">Expense, travel, and financial controls</div>
+          </td>
+          <td style="color:var(--t2)">5 published</td>
+          <td style="color:var(--t2)">Sarah Jones</td>
+          <td style="color:var(--t2)">Policy Committee</td>
+          <td><span class="badge b-pub">Active</span></td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-warn">Archive</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-weight:500">HR</div>
+            <div style="font-size:11px;color:var(--t3)">Employment, leave, and people policies</div>
+          </td>
+          <td style="color:var(--t2)">8 published</td>
+          <td style="color:var(--t2)">James Wilson</td>
+          <td style="color:var(--t2)">Policy Committee</td>
+          <td><span class="badge b-pub">Active</span></td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-warn">Archive</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-weight:500">IT</div>
+            <div style="font-size:11px;color:var(--t3)">Technology use, security, and data handling</div>
+          </td>
+          <td style="color:var(--t2)">6 published</td>
+          <td style="color:var(--t2)">Priya Kapoor</td>
+          <td style="color:var(--t2)">Policy Committee</td>
+          <td><span class="badge b-pub">Active</span></td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-warn">Archive</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-weight:500">Legal</div>
+            <div style="font-size:11px;color:var(--t3)">Compliance, contracts, and legal obligations</div>
+          </td>
+          <td style="color:var(--t2)">3 published</td>
+          <td style="color:var(--t2)">Sarah Jones</td>
+          <td style="color:var(--t2)">Policy Committee</td>
+          <td><span class="badge b-pub">Active</span></td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-warn">Archive</button>
+          </td>
+        </tr>
+        <tr style="opacity:0.55">
+          <td>
+            <div style="font-weight:500;color:var(--t2)">Operations (archived)</div>
+            <div style="font-size:11px;color:var(--t3)">Merged into Finance — Jan 2024</div>
+          </td>
+          <td style="color:var(--t3)">0 active</td>
+          <td style="color:var(--t3)">—</td>
+          <td style="color:var(--t3)">—</td>
+          <td><span class="badge b-arch">Archived</span></td>
+          <td style="white-space:nowrap;padding:8px 12px">
+            <button class="btn btn-sm btn-ok">Restore</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Inline archive confirm shown on one row -->
+  <div style="padding:10px 20px;border-top:0.5px solid var(--b3);background:var(--bg2);flex-shrink:0">
+    <div class="inline-confirm">
+      <span>Archive <strong>Finance</strong>? New policies cannot be created in this category. Existing policies are unaffected.</span>
+      <div style="display:flex;gap:6px;margin-left:auto;flex-shrink:0">
+        <button class="btn btn-sm">Cancel</button>
+        <button class="btn btn-sm btn-bad">Archive</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCREEN 4: AUDIENCE GROUPS
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-audiences" class="screen">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)">Audience Groups</div>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm btn-p">+ New group</button>
+  </div>
+  <div style="padding:10px 20px;border-bottom:0.5px solid var(--b3);flex-shrink:0;background:var(--info-bg);border-left:3px solid var(--t-info)">
+    <span style="font-size:12px;color:var(--t-info)"><strong>Audience groups</strong> control which staff can see which policies in the reader portal. A policy tagged with an audience group is only visible to users who belong to at least one of those groups. Changes take effect at the user's next login.</span>
+  </div>
+  <div style="flex:1;overflow:auto">
+    <table style="width:100%">
+      <thead><tr>
+        <th>Audience group</th><th>IdP group IDs (mapped)</th>
+        <th>Policies</th><th>Users</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td>
+            <div style="font-weight:500">All staff</div>
+            <div style="font-size:11px;color:var(--t3)">Visible to everyone in the organisation</div>
+          </td>
+          <td>
+            <span class="code">b1c2d3e4-all1-all1-all1-aabbccdd1001</span>
+          </td>
+          <td style="color:var(--t2)">14 policies</td>
+          <td style="color:var(--t2)">247 users</td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-weight:500">Finance team</div>
+            <div style="font-size:11px;color:var(--t3)">Finance department staff</div>
+          </td>
+          <td>
+            <span class="code">b1c2d3e4-fin1-fin1-fin1-aabbccdd2001</span>
+          </td>
+          <td style="color:var(--t2)">3 policies</td>
+          <td style="color:var(--t2)">18 users</td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-bad">Delete</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-weight:500">IT department</div>
+            <div style="font-size:11px;color:var(--t3)">IT and engineering staff</div>
+          </td>
+          <td>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <span class="code">b1c2d3e4-it01-it01-it01-aabbccdd3001</span>
+              <span class="code">b1c2d3e4-it02-it02-it02-aabbccdd3002</span>
+            </div>
+          </td>
+          <td style="color:var(--t2)">4 policies</td>
+          <td style="color:var(--t2)">31 users</td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-bad">Delete</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-weight:500">Senior leadership</div>
+            <div style="font-size:11px;color:var(--t3)">Director level and above</div>
+          </td>
+          <td>
+            <span class="code">b1c2d3e4-sl01-sl01-sl01-aabbccdd4001</span>
+          </td>
+          <td style="color:var(--t2)">2 policies</td>
+          <td style="color:var(--t2)">9 users</td>
+          <td style="white-space:nowrap;display:flex;gap:6px;padding:8px 12px">
+            <button class="btn btn-sm">Edit</button>
+            <button class="btn btn-sm btn-bad">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Slide-over: Edit IT department group -->
+  <div class="slide-over">
+    <div class="so-head">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--t1)">Edit audience group</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:2px">IT department</div>
+      </div>
+      <span class="so-close">×</span>
+    </div>
+    <div class="so-body">
+      <div class="form-field">
+        <div class="form-label">Group name</div>
+        <div class="form-input">IT department</div>
+      </div>
+      <div class="form-field">
+        <div class="form-label">Description</div>
+        <div class="form-input">IT and engineering staff</div>
+      </div>
+      <div class="form-field">
+        <div class="form-label">Mapped IdP group IDs</div>
+        <div class="form-note" style="margin-bottom:6px">One group ID per line. Find Object IDs in Azure Portal → Entra ID → Groups.</div>
+        <textarea style="font-family:monospace;font-size:12px;padding:8px 10px;border:0.5px solid var(--b2);border-radius:var(--r);resize:none;height:80px;background:var(--bg);color:var(--t1);width:100%">b1c2d3e4-it01-it01-it01-aabbccdd3001
+b1c2d3e4-it02-it02-it02-aabbccdd3002</textarea>
+      </div>
+      <div style="padding:10px 12px;background:var(--bg2);border-radius:var(--r);font-size:12px;color:var(--t2);display:flex;justify-content:space-between">
+        <span>Currently applies to:</span>
+        <span><strong>31 users</strong>, <strong>4 policies</strong></span>
+      </div>
+    </div>
+    <div class="so-foot">
+      <button class="btn btn-sm">Cancel</button>
+      <button class="btn btn-sm btn-p">Save changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCREEN 5: AUDIT LOG
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-audit" class="screen">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)">Audit Log</div>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm">Export filtered CSV</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" placeholder="Date from" style="width:110px">
+    <input type="text" placeholder="Date to" style="width:110px">
+    <select style="font-size:12px">
+      <option>All users</option>
+      <option>Sarah Jones</option>
+      <option>James Wilson</option>
+    </select>
+    <select style="font-size:12px">
+      <option>All policies</option>
+      <option>Expense Policy</option>
+      <option>IT AUP</option>
+    </select>
+    <select style="font-size:12px">
+      <option>All actions</option>
+      <option>login</option>
+      <option>policy_submitted</option>
+      <option>policy_approved</option>
+      <option>policy_published</option>
+      <option>comment_added</option>
+      <option>role_changed</option>
+      <option>review_reminder</option>
+    </select>
+    <button class="btn btn-sm btn-p">Apply</button>
+    <span style="font-size:11px;color:var(--t3)">1,284 events (filtered)</span>
+  </div>
+  <div style="flex:1;overflow:auto">
+    <table style="width:100%">
+      <thead><tr>
+        <th>Timestamp</th><th>Actor</th><th>Action</th>
+        <th>Policy / Resource</th><th>Detail</th>
+      </tr></thead>
+      <tbody class="audit-row">
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-15 14:32:07</td>
+          <td style="font-weight:500">James Wilson</td>
+          <td><span class="code">policy_submitted</span></td>
+          <td style="color:var(--t-info)">Expense Policy 2025</td>
+          <td style="color:var(--t2)">Submitted for review · reviewer: Sarah Jones</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-15 14:30:01</td>
+          <td style="font-weight:500">James Wilson</td>
+          <td><span class="code">policy_saved</span></td>
+          <td style="color:var(--t-info)">Expense Policy 2025</td>
+          <td style="color:var(--t2)">Manual save · commit abc1234</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-15 11:04:22</td>
+          <td style="font-weight:500">Sarah Jones</td>
+          <td><span class="code">policy_approved</span></td>
+          <td style="color:var(--t-info)">IT Acceptable Use Policy</td>
+          <td style="color:var(--t2)">L1 approval granted</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-15 10:58:14</td>
+          <td style="font-weight:500">Sarah Jones</td>
+          <td><span class="code">comment_added</span></td>
+          <td style="color:var(--t-info)">IT Acceptable Use Policy</td>
+          <td style="color:var(--t2)">"BYOD clause looks good. Minor wording nit on §3."</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-15 09:14:33</td>
+          <td style="font-weight:500">Sarah Jones</td>
+          <td><span class="code">login</span></td>
+          <td style="color:var(--t3)">—</td>
+          <td style="color:var(--t2)">SSO via Entra · IP 10.0.1.42</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-14 16:45:11</td>
+          <td style="font-weight:500">System</td>
+          <td><span class="code">review_reminder</span></td>
+          <td style="color:var(--t-info)">Data Classification Policy</td>
+          <td style="color:var(--t2)">90-day reminder sent to Mark Chen</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-14 15:21:08</td>
+          <td style="font-weight:500">Sarah Jones</td>
+          <td><span class="code">role_changed</span></td>
+          <td style="color:var(--t2)">User: James Wilson</td>
+          <td style="color:var(--t2)">Manual override: added policy:approver:l1</td>
+        </tr>
+        <tr>
+          <td style="color:var(--t3);white-space:nowrap">2025-01-14 11:00:00</td>
+          <td style="font-weight:500">System</td>
+          <td><span class="code">policy_published</span></td>
+          <td style="color:var(--t-info)">Remote Working Policy</td>
+          <td style="color:var(--t2)">Published v1.8 · commit def5678 · PDF generated</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    <span style="font-size:12px;color:var(--t2)">Showing 1–20 of 1,284</span>
+    <div style="flex:1"></div>
+    <button class="pg-btn">← Prev</button>
+    <button class="pg-btn active">1</button>
+    <button class="pg-btn">2</button>
+    <button class="pg-btn">3</button>
+    <span style="font-size:12px;color:var(--t3)">…</span>
+    <button class="pg-btn">65</button>
+    <button class="pg-btn">Next →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCREEN 6: BOT GAP REPORT
+════════════════════════════════════════════════════════════════════════════ -->
+<div id="screen-gap" class="screen">
+  <div class="topbar">
+    <div style="font-size:14px;font-weight:500;color:var(--t1)">Policy Bot — Gap Report</div>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:var(--t3)">Last 30 days</span>
+    <select style="font-size:12px">
+      <option>Last 30 days</option>
+      <option>Last 90 days</option>
+      <option>All time</option>
+    </select>
+    <button class="btn btn-sm">Export CSV</button>
+  </div>
+  <div style="padding:10px 20px;border-bottom:0.5px solid var(--b3);flex-shrink:0;background:var(--warn-bg);border-left:3px solid var(--t-warn)">
+    <span style="font-size:12px;color:var(--t-warn)"><strong>What is this?</strong> These are questions the Policy Bot could not answer because no published policy covers the topic. Each represents a potential policy gap. Consider creating a new policy or expanding an existing one to address the most frequent questions.</span>
+  </div>
+  <div style="flex:1;overflow:auto;padding:16px 20px">
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:14px 16px;background:var(--bg)">
+        <div style="font-size:22px;font-weight:500;color:var(--t-danger);margin-bottom:4px">184</div>
+        <div style="font-size:12px;color:var(--t2)">Unanswered questions</div>
+        <div style="font-size:11px;color:var(--t3)">last 30 days</div>
+      </div>
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:14px 16px;background:var(--bg)">
+        <div style="font-size:22px;font-weight:500;color:var(--t-warn);margin-bottom:4px">23%</div>
+        <div style="font-size:12px;color:var(--t2)">No-answer rate</div>
+        <div style="font-size:11px;color:var(--t3)">of all bot questions</div>
+      </div>
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:14px 16px;background:var(--bg)">
+        <div style="font-size:22px;font-weight:500;color:var(--t-info);margin-bottom:4px">7</div>
+        <div style="font-size:12px;color:var(--t2)">Distinct topic clusters</div>
+        <div style="font-size:11px;color:var(--t3)">grouped by AI</div>
+      </div>
+    </div>
+
+    <div class="sl" style="margin-bottom:12px">Top unanswered questions — ranked by frequency</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <div style="border:0.5px solid var(--danger-b);border-radius:var(--rl);padding:12px 16px;background:var(--danger-bg);display:flex;align-items:center;gap:14px">
+        <div class="gap-rank" style="background:var(--danger-bg);border-color:var(--danger-b);color:var(--t-danger)">1</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--t1)">What is the policy on mental health days / wellbeing leave?</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:3px">31 times asked · Suggested: expand HR leave policy or create a Wellbeing Policy</div>
+        </div>
+        <div class="gap-bar-wrap"><div class="gap-bar" style="width:100%"></div></div>
+        <div style="font-size:13px;font-weight:500;color:var(--t-danger);width:28px;text-align:right">31</div>
+        <button class="btn btn-sm btn-p" style="white-space:nowrap">Create policy</button>
+      </div>
+
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:12px 16px;background:var(--bg);display:flex;align-items:center;gap:14px">
+        <div class="gap-rank">2</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--t1)">Can I expense a standing desk / home office equipment?</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:3px">24 times asked · Suggested: add home office section to Expense Policy</div>
+        </div>
+        <div class="gap-bar-wrap"><div class="gap-bar" style="width:77%"></div></div>
+        <div style="font-size:13px;font-weight:500;color:var(--t2);width:28px;text-align:right">24</div>
+        <button class="btn btn-sm" style="white-space:nowrap">View policy</button>
+      </div>
+
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:12px 16px;background:var(--bg);display:flex;align-items:center;gap:14px">
+        <div class="gap-rank">3</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--t1)">What are the rules for using personal AI tools (ChatGPT etc) for work?</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:3px">19 times asked · Suggested: create an AI Tools Usage Policy under IT</div>
+        </div>
+        <div class="gap-bar-wrap"><div class="gap-bar" style="width:61%"></div></div>
+        <div style="font-size:13px;font-weight:500;color:var(--t2);width:28px;text-align:right">19</div>
+        <button class="btn btn-sm btn-p" style="white-space:nowrap">Create policy</button>
+      </div>
+
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:12px 16px;background:var(--bg);display:flex;align-items:center;gap:14px">
+        <div class="gap-rank">4</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--t1)">Is there a policy on second jobs / freelance work?</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:3px">14 times asked · Suggested: create a Conflict of Interest or Secondary Employment Policy under HR</div>
+        </div>
+        <div class="gap-bar-wrap"><div class="gap-bar" style="width:45%"></div></div>
+        <div style="font-size:13px;font-weight:500;color:var(--t2);width:28px;text-align:right">14</div>
+        <button class="btn btn-sm btn-p" style="white-space:nowrap">Create policy</button>
+      </div>
+
+      <div style="border:0.5px solid var(--b3);border-radius:var(--rl);padding:12px 16px;background:var(--bg);display:flex;align-items:center;gap:14px">
+        <div class="gap-rank">5</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:var(--t1)">How do I report a data breach or security incident?</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:3px">11 times asked · Suggested: check if IT Incident Response Policy is published and visible to all-staff audience</div>
+        </div>
+        <div class="gap-bar-wrap"><div class="gap-bar" style="width:35%"></div></div>
+        <div style="font-size:13px;font-weight:500;color:var(--t2);width:28px;text-align:right">11</div>
+        <button class="btn btn-sm" style="white-space:nowrap">View policy</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function nav(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.style.display='none'; s.classList.remove('active'); });
+  document.querySelectorAll('.sw-btn').forEach(b => b

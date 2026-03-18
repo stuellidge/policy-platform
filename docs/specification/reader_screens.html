@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>PolicyHub — Reader Screens</title>
+<style>
+:root {
+  --color-background-primary:#ffffff;--color-background-secondary:#f6f5f2;
+  --color-background-tertiary:#efede8;--color-background-info:#e6f1fb;
+  --color-background-success:#e1f5ee;--color-background-warning:#faeeda;
+  --color-background-danger:#fcebeb;
+  --color-text-primary:#1a1917;--color-text-secondary:#6b6a67;
+  --color-text-tertiary:#9e9d9a;--color-text-info:#185FA5;
+  --color-text-success:#0F6E56;--color-text-warning:#BA7517;
+  --color-text-danger:#A32D2D;
+  --color-border-tertiary:rgba(26,25,23,0.12);
+  --color-border-secondary:rgba(26,25,23,0.22);
+  --color-border-primary:rgba(26,25,23,0.35);
+  --border-radius-md:8px;--border-radius-lg:12px;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:13px;background:#edecea;padding:24px;min-height:100vh}
+.app{display:flex;height:700px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary);box-shadow:0 2px 16px rgba(0,0,0,0.08)}
+.sidebar{width:188px;border-right:0.5px solid var(--color-border-tertiary);flex-shrink:0;display:flex;flex-direction:column;background:var(--color-background-secondary)}
+.sidebar-logo{padding:13px 16px;font-size:14px;font-weight:500;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.nav-item{padding:7px 10px;border-radius:var(--border-radius-md);cursor:pointer;color:var(--color-text-secondary);font-size:13px;display:flex;align-items:center;gap:8px;margin:1px 8px}
+.nav-item:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.35;flex-shrink:0}
+.nav-label{font-size:10px;color:var(--color-text-tertiary);padding:10px 8px 4px;letter-spacing:0.6px;text-transform:uppercase}
+.sidebar-user{padding:12px 14px;border-top:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary);margin-top:auto}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--color-background-primary);position:relative}
+.topbar{padding:10px 20px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:10px;flex-shrink:0;min-height:46px;background:var(--color-background-secondary)}
+.screen{display:none;flex-direction:column;flex:1;min-height:0}
+.screen.active{display:flex}
+.btn{padding:5px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;font-size:13px;background:transparent;color:var(--color-text-primary)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-sm{padding:3px 10px;font-size:12px}
+.btn-primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:transparent}
+.btn-primary:hover{opacity:0.85}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500}
+.badge-current{background:#E6F1FB;color:#185FA5}
+.section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.4px;text-transform:uppercase}
+.breadcrumb{font-size:12px;color:var(--color-text-secondary);cursor:pointer}
+.breadcrumb:hover{color:var(--color-text-primary);text-decoration:underline}
+.crumb-sep{color:var(--color-text-tertiary);margin:0 5px}
+.meta-row{display:flex;gap:20px;flex-wrap:wrap;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.meta-field{display:flex;flex-direction:column;gap:2px}
+.meta-lbl{font-size:10px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.4px}
+.meta-val{font-size:13px;color:var(--color-text-primary);font-weight:500}
+.toc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 16px;font-size:13px}
+.toc-item{padding:3px 0;color:var(--color-text-info);cursor:pointer;display:flex;gap:8px}
+.toc-item:hover{text-decoration:underline}
+.toc-num{color:var(--color-text-tertiary);width:20px;flex-shrink:0}
+.policy-h1{font-size:22px;font-weight:500;line-height:1.3;margin-bottom:6px;color:var(--color-text-primary)}
+.policy-h2{font-size:16px;font-weight:500;margin:22px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)}
+.policy-h3{font-size:14px;font-weight:500;margin:16px 0 6px;color:var(--color-text-primary)}
+.policy-p{font-size:14px;line-height:1.75;margin-bottom:12px;color:var(--color-text-primary)}
+.policy-note{background:var(--color-background-secondary);border-left:3px solid var(--color-border-secondary);padding:10px 14px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;font-size:13px;line-height:1.6;margin:12px 0;color:var(--color-text-secondary)}
+.related-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.related-card:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.version-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.version-row:last-child{border-bottom:none}
+.version-row:hover .ver-actions{opacity:1}
+.ver-actions{opacity:0;transition:opacity 0.1s}
+.diff-add{background:#EAF3DE;color:#27500A}
+.diff-del{background:#FCEBEB;color:#791F1F;text-decoration:line-through}
+.diff-hunk{color:#185FA5;font-size:11px;margin:10px 0 4px;font-family:monospace}
+.code-block{font-family:monospace;font-size:12px;line-height:1.8;padding:14px 16px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);overflow-x:auto}
+.ver-selector{padding:5px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;outline:none}
+.ai-callout{background:#E6F1FB;border:0.5px solid #B5D4F4;border-radius:var(--border-radius-md);padding:8px 12px;font-size:12px;color:#185FA5}
+.bot-fab{position:absolute;bottom:20px;right:20px;padding:7px 16px;background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;z-index:10;display:flex;align-items:center;gap:7px}
+.bot-fab:hover{opacity:0.85}
+.fab-dot{width:7px;height:7px;border-radius:50%;background:#5DCAA5;flex-shrink:0}
+.tab-btn{padding:8px 16px;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;font-size:13px;color:var(--color-text-secondary)}
+.tab-btn.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.tab-btn:hover:not(.active){color:var(--color-text-primary)}
+select{outline:none}
+</style>
+</head>
+<body>
+
+<div style="text-align:center;margin-bottom:16px;display:flex;gap:12px;justify-content:center">
+  <button onclick="nav('detail')" style="padding:6px 16px;border-radius:99px;border:0.5px solid #ccc;background:#fff;cursor:pointer;font-size:13px">Policy detail</button>
+  <button onclick="nav('history')" style="padding:6px 16px;border-radius:99px;border:0.5px solid #ccc;background:#fff;cursor:pointer;font-size:13px">Version history</button>
+  <button onclick="nav('diff')" style="padding:6px 16px;border-radius:99px;border:0.5px solid #ccc;background:#fff;cursor:pointer;font-size:13px">Version diff</button>
+</div>
+
+<div class="app">
+<div class="sidebar">
+  <div class="sidebar-logo">PolicyHub</div>
+  <div style="padding:8px 0">
+    <div class="nav-item" style="opacity:0.5"><div class="nav-dot"></div>Dashboard</div>
+    <div class="nav-item" style="opacity:0.5"><div class="nav-dot"></div>My Policies</div>
+    <div class="nav-item" style="opacity:0.5"><div class="nav-dot"></div>Review Queue</div>
+    <div class="nav-label">Reader</div>
+    <div class="nav-item active"><div class="nav-dot"></div>Policy Library</div>
+    <div class="nav-label">Admin</div>
+    <div class="nav-item" style="opacity:0.5"><div class="nav-dot"></div>Categories</div>
+    <div class="nav-item" style="opacity:0.5"><div class="nav-dot"></div>Users</div>
+  </div>
+  <div class="sidebar-user">
+    <div style="font-weight:500;color:var(--color-text-primary);font-size:12px">James Wilson</div>
+    <div style="font-size:11px;margin-top:1px">Policy Author</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- SCREEN: POLICY DETAIL -->
+<div id="screen-detail" class="screen">
+  <div class="topbar">
+    <span class="breadcrumb">Policy Library</span>
+    <span class="crumb-sep">/</span>
+    <span class="breadcrumb">Finance</span>
+    <span class="crumb-sep">/</span>
+    <span style="font-size:12px;color:var(--color-text-primary);font-weight:500">Expense &amp; Reimbursement Policy</span>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm" onclick="nav('history')">Version history</button>
+    <button class="btn btn-sm">Download PDF</button>
+  </div>
+
+  <div style="flex:1;display:flex;min-height:0;overflow:hidden">
+    <div style="flex:1;overflow:auto;padding:28px 36px;padding-bottom:80px;max-width:760px">
+
+      <div style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="tag">Finance</span>
+          <span class="badge badge-current">v3.1 — Current</span>
+          <span style="font-size:11px;color:var(--color-text-tertiary)">Effective 1 Jan 2025</span>
+        </div>
+        <div class="policy-h1">Expense &amp; Reimbursement Policy</div>
+        <div style="font-size:13px;color:var(--color-text-secondary)">Rules for claiming business expenses and reimbursement of costs incurred in the performance of your duties.</div>
+      </div>
+
+      <div class="meta-row" style="margin-bottom:20px">
+        <div class="meta-field"><div class="meta-lbl">Owner</div><div class="meta-val">Finance Team</div></div>
+        <div class="meta-field"><div class="meta-lbl">Effective</div><div class="meta-val">1 Jan 2025</div></div>
+        <div class="meta-field"><div class="meta-lbl">Next review</div><div class="meta-val" style="color:#BA7517">1 Jan 2026</div></div>
+        <div class="meta-field"><div class="meta-lbl">Audience</div><div class="meta-val">All staff, Finance</div></div>
+        <div class="meta-field"><div class="meta-lbl">Version</div><div class="meta-val">3.1 <span style="font-size:11px;font-weight:400;color:var(--color-text-info);cursor:pointer" onclick="nav('history')">(history →)</span></div></div>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <div class="section-label" style="margin-bottom:10px">Contents</div>
+        <div class="toc">
+          <div class="toc-item"><span class="toc-num">1</span>Purpose</div>
+          <div class="toc-item"><span class="toc-num">2</span>Scope</div>
+          <div class="toc-item"><span class="toc-num">3</span>General principles</div>
+          <div class="toc-item"><span class="toc-num">4</span>Accommodation &amp; travel</div>
+          <div class="toc-item"><span class="toc-num" style="padding-left:12px">4.1</span>Flights and rail</div>
+          <div class="toc-item"><span class="toc-num" style="padding-left:12px">4.2</span>Hotel accommodation</div>
+          <div class="toc-item"><span class="toc-num">5</span>Meals and subsistence</div>
+          <div class="toc-item"><span class="toc-num">6</span>Approval thresholds</div>
+          <div class="toc-item"><span class="toc-num">7</span>Corporate card</div>
+          <div class="toc-item"><span class="toc-num">8</span>Submitting a claim</div>
+          <div class="toc-item"><span class="toc-num">9</span>Related policies</div>
+        </div>
+      </div>
+
+      <div class="policy-h2">1. Purpose</div>
+      <p class="policy-p">This policy sets out the rules for claiming business expenses and reimbursement of out-of-pocket costs incurred by employees in the performance of their duties. It applies to all employees, contractors, and agency workers who incur costs on behalf of the organisation.</p>
+
+      <div class="policy-h2">4. Accommodation &amp; travel</div>
+      <div class="policy-h3">4.2 Hotel accommodation</div>
+      <p class="policy-p">Hotel bookings should be made via the approved travel portal where possible. The maximum nightly rate is <strong>£145</strong> in the UK and <strong>£210</strong> internationally, exclusive of breakfast. Receipts are required for all hotel stays regardless of cost.</p>
+      <div class="policy-note">Stays at rates above these limits require prior written approval from your department head before travel is booked.</div>
+
+      <div class="policy-h2">6. Approval thresholds</div>
+      <p class="policy-p">Manager approval is required for any single expense over <strong>£250</strong>. Department head sign-off is required for international travel prior to booking. Claims submitted more than 60 days after the expense was incurred may not be approved.</p>
+
+      <div class="policy-h2">9. Related policies</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+        <div class="related-card">
+          <span class="tag" style="flex-shrink:0;margin-top:1px">Finance</span>
+          <div>
+            <div style="font-size:13px;font-weight:500">Travel Policy v2.1</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Flight and rail booking rules, class of travel entitlements</div>
+          </div>
+        </div>
+        <div class="related-card">
+          <span class="tag" style="flex-shrink:0;margin-top:1px">Finance</span>
+          <div>
+            <div style="font-size:13px;font-weight:500">Corporate Card Policy v1.3</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Card usage limits, blocked categories, and reconciliation</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:14px;font-size:11px;color:var(--color-text-tertiary);display:flex;justify-content:space-between">
+        <span>Version 3.1 — Effective 1 Jan 2025 — Owner: Finance Team</span>
+        <span style="cursor:pointer;color:var(--color-text-info)" onclick="nav('history')">View full version history →</span>
+      </div>
+    </div>
+
+    <div style="width:180px;flex-shrink:0;border-left:0.5px solid var(--color-border-tertiary);padding:20px 14px;overflow:auto;background:var(--color-background-secondary)">
+      <div class="section-label" style="margin-bottom:10px">On this page</div>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <div style="padding:4px 8px;border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;background:var(--color-background-primary);font-weight:500;border-left:2px solid var(--color-text-primary)">1 · Purpose</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">2 · Scope</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">3 · Principles</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">4 · Accommodation</div>
+        <div style="padding:4px 8px;font-size:11px;cursor:pointer;color:var(--color-text-tertiary);padding-left:18px">4.1 Flights</div>
+        <div style="padding:4px 8px;font-size:11px;cursor:pointer;color:var(--color-text-tertiary);padding-left:18px">4.2 Hotel</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">5 · Meals</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">6 · Approvals</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">7 · Corporate card</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">8 · Submitting</div>
+        <div style="padding:4px 8px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">9 · Related</div>
+      </div>
+      <div style="margin-top:20px;padding-top:14px;border-top:0.5px solid var(--color-border-tertiary)">
+        <div class="section-label" style="margin-bottom:8px">Actions</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn btn-sm" style="font-size:12px">Download PDF</button>
+          <button class="btn btn-sm" style="font-size:12px" onclick="nav('history')">Version history</button>
+          <button class="btn btn-sm" style="font-size:12px">Copy link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="bot-fab"><span class="fab-dot"></span> Policy Bot</button>
+</div>
+
+
+<!-- SCREEN: VERSION HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="topbar">
+    <span class="breadcrumb" onclick="nav('detail')">← Expense &amp; Reimbursement Policy</span>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:var(--color-text-secondary)">6 published versions</span>
+  </div>
+
+  <div style="flex:1;overflow:auto;padding:24px 32px;max-width:760px">
+    <div style="margin-bottom:20px">
+      <h2 style="font-size:17px;font-weight:500;margin-bottom:4px;color:var(--color-text-primary)">Version history</h2>
+      <p style="font-size:13px;color:var(--color-text-secondary)">All published versions of the Expense &amp; Reimbursement Policy with AI-generated change summaries.</p>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:24px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--color-text-secondary)">Compare</span>
+      <select class="ver-selector" style="width:auto;font-size:12px">
+        <option>v3.0</option><option selected>v2.2</option><option>v2.1</option><option>v2.0</option>
+      </select>
+      <span style="font-size:12px;color:var(--color-text-secondary)">with</span>
+      <select class="ver-selector" style="width:auto;font-size:12px">
+        <option selected>v3.1 (current)</option><option>v3.0</option><option>v2.2</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="nav('diff')">Show diff →</button>
+    </div>
+
+    <div style="display:flex;gap:0">
+      <div style="display:flex;flex-direction:column;align-items:center;margin-right:16px;padding-top:17px">
+        <div style="width:10px;height:10px;border-radius:50%;background:#185FA5;flex-shrink:0"></div>
+        <div style="width:2px;height:72px;background:var(--color-border-tertiary);margin:4px 0"></div>
+        <div style="width:8px;height:8px;border-radius:50%;border:2px solid var(--color-border-secondary);flex-shrink:0;background:var(--color-background-primary)"></div>
+        <div style="width:2px;height:52px;background:var(--color-border-tertiary);margin:4px 0"></div>
+        <div style="width:8px;height:8px;border-radius:50%;border:2px solid var(--color-border-secondary);flex-shrink:0;background:var(--color-background-primary)"></div>
+        <div style="width:2px;height:52px;background:var(--color-border-tertiary);margin:4px 0"></div>
+        <div style="width:8px;height:8px;border-radius:50%;border:2px solid var(--color-border-secondary);flex-shrink:0;background:var(--color-background-primary)"></div>
+        <div style="width:2px;height:52px;background:var(--color-border-tertiary);margin:4px 0"></div>
+        <div style="width:8px;height:8px;border-radius:50%;border:2px solid var(--color-border-secondary);flex-shrink:0;background:var(--color-background-primary)"></div>
+        <div style="width:2px;height:36px;background:var(--color-border-tertiary);margin:4px 0"></div>
+        <div style="width:8px;height:8px;border-radius:50%;border:2px solid var(--color-border-secondary);flex-shrink:0;background:var(--color-background-primary)"></div>
+      </div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:0">
+        <div class="version-row">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">v3.1</span>
+              <span class="badge badge-current">Current</span>
+              <span style="font-size:11px;color:var(--color-text-tertiary)">1 Jan 2025 · James Wilson</span>
+            </div>
+            <div class="ai-callout" style="margin-bottom:8px">
+              <span style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-right:6px">AI change summary</span>
+              Updated UK hotel rate £120→£145 and international £180→£210 (2025 Finance Committee approval). Added receipt requirement for all overnight hotel stays.
+            </div>
+            <div class="ver-actions" style="display:flex;gap:6px">
+              <button class="btn btn-sm" style="font-size:11px">View this version</button>
+              <button class="btn btn-sm" style="font-size:11px">Download PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-row">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">v3.0</span>
+              <span style="font-size:11px;color:var(--color-text-tertiary)">14 Sep 2024 · Sarah Jones</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Added corporate card section (§7). Clarified overseas meal subsistence rates. Minor wording updates throughout.</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-sm" style="font-size:11px">View this version</button>
+              <button class="btn btn-sm" style="font-size:11px" onclick="nav('diff')">Compare with current</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-row">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">v2.2</span>
+              <span style="font-size:11px;color:var(--color-text-tertiary)">3 Mar 2024 · James Wilson</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Updated approval threshold from £200 to £250. Added clause requiring pre-approval for international travel.</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-sm" style="font-size:11px">View this version</button>
+              <button class="btn btn-sm" style="font-size:11px" onclick="nav('diff')">Compare with current</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-row">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">v2.1</span>
+              <span style="font-size:11px;color:var(--color-text-tertiary)">11 Aug 2023 · Mark Chen</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Updated hotel rates following annual review: UK £110→£120, international £160→£180.</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-sm" style="font-size:11px">View this version</button>
+              <button class="btn btn-sm" style="font-size:11px" onclick="nav('diff')">Compare with current</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="version-row">
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">v1.1</span>
+              <span style="font-size:11px;color:var(--color-text-tertiary)">15 Jun 2022 · Sarah Jones</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Initial published version.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="bot-fab"><span class="fab-dot"></span> Policy Bot</button>
+</div>
+
+
+<!-- SCREEN: VERSION DIFF -->
+<div id="screen-diff" class="screen">
+  <div class="topbar">
+    <span class="breadcrumb" onclick="nav('history')">← Version history</span>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <select class="ver-selector" style="font-size:12px">
+        <option>v2.2</option><option>v3.0</option><option>v2.1</option>
+      </select>
+      <span style="font-size:12px;color:var(--color-text-tertiary)">→</span>
+      <select class="ver-selector" style="font-size:12px">
+        <option>v3.1 (current)</option><option>v3.0</option>
+      </select>
+      <button class="btn btn-sm btn-primary">Update</button>
+    </div>
+  </div>
+
+  <div style="background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);padding:8px 20px;display:flex;gap:16px;align-items:center;flex-shrink:0;flex-wrap:wrap">
+    <div style="font-size:12px;color:var(--color-text-primary)"><strong>v2.2</strong> <span style="color:var(--color-text-tertiary)">3 Mar 2024</span></div>
+    <div style="color:var(--color-text-tertiary)">→</div>
+    <div style="font-size:12px;color:var(--color-text-primary)"><strong>v3.1</strong> <span style="color:var(--color-text-tertiary)">1 Jan 2025 · current</span></div>
+    <div style="width:0.5px;height:16px;background:var(--color-border-tertiary)"></div>
+    <span style="background:#EAF3DE;color:#27500A;padding:2px 7px;border-radius:4px;font-size:12px;font-weight:500">+14 lines</span>
+    <span style="background:#FCEBEB;color:#791F1F;padding:2px 7px;border-radius:4px;font-size:12px;font-weight:500">−6 lines</span>
+    <span style="font-size:12px;color:var(--color-text-secondary)">4 sections changed</span>
+    <div style="flex:1"></div>
+    <div class="ai-callout" style="padding:5px 10px;font-size:11px">
+      <span style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-right:6px">Summary</span>
+      Hotel rates updated, approval threshold raised £200→£250, receipt requirement added, new corporate card section.
+    </div>
+  </div>
+
+  <div style="border-bottom:0.5px solid var(--color-border-tertiary);padding:0 20px;display:flex;flex-shrink:0">
+    <button class="tab-btn active" id="tab-unified" onclick="switchTab('unified')">Unified diff</button>
+    <button class="tab-btn" id="tab-split" onclick="switchTab('split')">Side by side</button>
+  </div>
+
+  <div style="flex:1;overflow:auto">
+    <div id="view-unified" style="padding:16px 20px">
+      <div class="code-block">
+        <div class="diff-hunk">@@ -§4.2 Hotel accommodation @@</div>
+        <div style="padding:1px 0"> Hotel bookings should be made via the approved travel portal.</div>
+        <div style="padding:1px 0"> The maximum nightly rate is:</div>
+        <div class="diff-del" style="padding:2px 4px;border-radius:2px;margin:1px 0">- UK: £120 per night</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ UK: £145 per night</div>
+        <div class="diff-del" style="padding:2px 4px;border-radius:2px;margin:1px 0">- International: £180 per night</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ International: £210 per night</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ Receipts are required for all hotel stays regardless of cost.</div>
+        <div class="diff-hunk" style="margin-top:14px">@@ -§6.1 Approval thresholds @@</div>
+        <div style="padding:1px 0"> Manager approval is required for any single expense over:</div>
+        <div class="diff-del" style="padding:2px 4px;border-radius:2px;margin:1px 0">- £200</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ £250</div>
+        <div style="padding:1px 0"> Claims for international travel require department head sign-off</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ prior to booking. Claims submitted more than 60 days after the</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ expense was incurred may not be approved.</div>
+        <div class="diff-hunk" style="margin-top:14px">@@ +§7 Corporate card (new section) @@</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ Corporate cards are available for employees who travel regularly.</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ Apply via the Finance portal. Monthly statements must be reconciled</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ within 14 days of receipt. See Corporate Card Policy v1.3.</div>
+        <div class="diff-hunk" style="margin-top:14px">@@ -§8 Related policies @@</div>
+        <div class="diff-add" style="padding:2px 4px;border-radius:2px;margin:1px 0">+ Corporate Card Policy v1.3</div>
+      </div>
+    </div>
+
+    <div id="view-split" style="display:none;grid-template-columns:1fr 1fr;flex:1">
+      <div style="padding:16px 20px;border-right:0.5px solid var(--color-border-tertiary);overflow:auto">
+        <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.4px;color:var(--color-text-tertiary);margin-bottom:12px;display:inline-block;padding:3px 8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)">v2.2 — 3 Mar 2024</div>
+        <p style="font-size:13px;line-height:1.7;margin-bottom:12px;color:var(--color-text-primary)">The maximum nightly rate is <span class="diff-del" style="padding:1px 2px;border-radius:2px">£120</span> in the UK and <span class="diff-del" style="padding:1px 2px;border-radius:2px">£180</span> internationally.</p>
+        <p style="font-size:13px;line-height:1.7;margin-bottom:12px;color:var(--color-text-primary)">Manager approval is required for any single expense over <span class="diff-del" style="padding:1px 2px;border-radius:2px">£200</span>.</p>
+        <p style="font-size:13px;line-height:1.7;color:var(--color-text-tertiary);font-style:italic">No §7 Corporate card in this version.</p>
+      </div>
+      <div style="padding:16px 20px;overflow:auto">
+        <div style="font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.4px;color:#185FA5;margin-bottom:12px;display:inline-block;padding:3px 8px;background:#E6F1FB;border-radius:var(--border-radius-md)">v3.1 — 1 Jan 2025 (current)</div>
+        <p style="font-size:13px;line-height:1.7;margin-bottom:12px;color:var(--color-text-primary)">The maximum nightly rate is <span class="diff-add" style="padding:1px 2px;border-radius:2px">£145</span> in the UK and <span class="diff-add" style="padding:1px 2px;border-radius:2px">£210</span> internationally.</p>
+        <p class="diff-add" style="font-size:13px;line-height:1.7;padding:6px 8px;border-radius:var(--border-radius-md);margin-bottom:12px">Receipts are required for all hotel stays regardless of cost.</p>
+        <p style="font-size:13px;line-height:1.7;margin-bottom:12px;color:var(--color-text-primary)">Manager approval is required for any single expense over <span class="diff-add" style="padding:1px 2px;border-radius:2px">£250</span>.</p>
+        <p class="diff-add" style="font-size:13px;line-height:1.7;padding:6px 8px;border-radius:var(--border-radius-md)">Claims submitted more than 60 days after the expense was incurred may not be approved.</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="bot-fab"><span class="fab-dot"></span> Policy Bot</button>
+</div>
+
+</div>
+</div>
+
+<script>
+function nav(id) {
+  document.querySelectorAll('.screen').forEach(s => {s.style.display='none';s.classList.remove('active')});
+  var s = document.getElementById('screen-'+id);
+  if(s){s.style.display='flex';s.classList.add('active')}
+}
+function switchTab(tab) {
+  document.getElementById('view-unified').style.display = tab==='unified'?'block':'none';
+  document.getElementById('view-split').style.display = tab==='split'?'grid':'none';
+  document.getElementById('tab-unified').classList.toggle('active',tab==='unified');
+  document.getElementById('tab-split').classList.toggle('active',tab==='split');
+}
+nav('detail');
+</script>
+</body>
+</html>
