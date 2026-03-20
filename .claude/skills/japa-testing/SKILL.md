@@ -392,7 +392,7 @@ test.group('Portal — audience filtering', (group) => {
     response.assertStatus(200)
     const ids = response.body().data.map((p: any) => p.id)
     assert.notInclude(ids, hrPolicy.id)
-    // financePolicy not visible because user only has financeGroup, not allStaffGroup
+    // financePolicy should be visible because the user is in the correct audience group, but hrPolicy should not.
   })
 })
 ```
