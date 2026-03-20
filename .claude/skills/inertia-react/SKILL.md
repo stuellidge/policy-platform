@@ -215,7 +215,7 @@ interface Props {
 }
 
 export default function AdminLayout({ children, title = 'PolicyHub' }: Props) {
-  const { auth } = usePage().props as any
+  const { auth } = usePage<SharedData>().props
 
   return (
     <html>
