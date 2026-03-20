@@ -61,7 +61,7 @@ export default function PoliciesIndex({ policies }: Props) {
       <ul>
         {policies.map((policy) => (
           <li key={policy.id}>
-            <a href={`/authoring/policies/${policy.id}/edit`}>{policy.title}</a>
+            <Link href={route('policies.edit', { id: policy.id })}>{policy.title}</Link>
             <span>{policy.status}</span>
           </li>
         ))}
