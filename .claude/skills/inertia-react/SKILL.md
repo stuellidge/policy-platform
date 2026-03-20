@@ -239,7 +239,7 @@ SSR is enabled by default in v7. A few rules:
 - **Monaco Editor and TipTap are client-only** — import them with dynamic imports:
 
 ```tsx
-import dynamic from 'react'  // or use conditional rendering
+import React from 'react'  // or use conditional rendering
 
 // Monaco diff viewer — client-only
 const MonacoDiffViewer = React.lazy(() =>
