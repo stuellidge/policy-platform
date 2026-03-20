@@ -202,7 +202,7 @@ export default class PolicyTransformer extends BaseTransformer<Policy> {
       status: policy.status,
       // Only include audienceGroups if preloaded
       audienceGroups: policy.$preloaded.audienceGroups
-        ? policy.audienceGroups.map((g) => ({ id: g.id, name: g.name }))
+        ? await AudienceGroupTransformer.collection(policy.audienceGroups)
         : undefined,
     }
   }
