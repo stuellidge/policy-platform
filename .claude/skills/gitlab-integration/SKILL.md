@@ -393,8 +393,20 @@ async getMrDiff(mrIid: number): Promise<GitlabDiff> {
 // Invalidate on new commit
 async updateFile(params: UpdateFileParams): Promise<void> {
   await this.api.put(`/repository/files/${encodeURIComponent(params.filePath)}`, params)
-  // Invalidate any cached diff for the active MR
-  await redis.del(`gitlab:mr:*:diff`)  // or target the specific MR if known
+  // Invalidate any cached diff for the active MR.
+  // Avoid redis.del with a wildcard — it blocks the server while scanning.
+  // Use SCAN + DEL instead so invalidation is non-blocking.
+  if (params.mrIid) {
+    await redis.del(`gitlab:mr:${params.mrIid}:diff`)
+  } else {
+    // mrIid not available: scan and delete in batches without blocking
+    let cursor = '0'
+    do {
+      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'gitlab:mr:*:diff', 'COUNT', 100)
+      if (keys.length) await redis.del(...keys)
+      cursor = nextCursor
+    } while (cursor !== '0')
+  }
 }
 ```
 
