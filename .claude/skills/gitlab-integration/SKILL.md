@@ -130,7 +130,7 @@ const mr = await gitlabService.createMergeRequest({
   title: `Review: ${policy.title}`,
   description: changeJustification ?? '',
   draft: false,
-  assigneeIds: [reviewerGitlabIds],
+  assigneeIds: reviewerGitlabIds,
   labels: ['policy-review'],
 })
 
