@@ -105,6 +105,35 @@ files: ['tests/**/*.spec(.ts|.js)']
 files: ['tests/**/*.spec.{ts,js}']
 ```
 
+### HTTP method spoofing
+
+HTML forms only support `GET` and `POST`. To send `PUT`, `PATCH`, or `DELETE`
+from a form you must use method spoofing. Two things are required:
+
+**1. Enable it in `config/app.ts` — it is `false` by default:**
+
+```typescript
+// config/app.ts
+export const http = defineConfig({
+  allowMethodSpoofing: true,
+})
+```
+
+**2. Put `_method` in the query string — NOT as a hidden form field:**
+
+```tsx
+{/* ✅ Correct — _method in the query string */}
+<form method="POST" action={`/api/v1/policies/${id}?_method=PUT`}>
+
+{/* ❌ Wrong — hidden field is silently ignored */}
+<form method="POST" action={`/api/v1/policies/${id}`}>
+  <input type="hidden" name="_method" value="PUT" />
+```
+
+The source form method must be `POST` — spoofing does not apply to `GET`.
+`request.method()` returns the spoofed method; `request.intended()` returns
+the original `POST`.
+
 ### Always use ace generators
 
 | To create | Command |
@@ -438,3 +467,4 @@ the next milestone begins. Do not start M2 work until M1 is human-validated.
 - Do not call the Claude API from the browser — all AI calls are server-side
 - Do not store policy Markdown content in PostgreSQL — GitLab owns it
 - Do not skip the CI gate (`format + typecheck + test + migration:status`) before pushing
+- Do not put `_method` in a hidden form field — it must be in the query string (`?_method=PUT`), and `allowMethodSpoofing: true` must be set in `config/app.ts`
